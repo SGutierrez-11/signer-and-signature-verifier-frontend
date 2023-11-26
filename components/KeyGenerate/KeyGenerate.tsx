@@ -1,44 +1,59 @@
-import React from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
+
+import GenerateKey from "@/services/GenerateKey";
+import GetKeys from "@/services/GetKeys";
 import TableKeys from "@/components/Tables/TableKeys";
 
-const KeyGenerate = () => {
-  const [password, setPassword] = React.useState("");
-  const [data, setData] = React.useState([]);
+import { toast } from "react-hot-toast";
 
-  const instance = axios.create({
-    baseURL: "https://signer-verifier-server.onrender.com/api",
-    timeout: 10000,
-    headers: { "Content-Type": "application/json" },
-  });
+const KeyGenerate = () => {
+  const [password, setPassword] = useState("");
+
+  const [data, setData] = useState<any[]>([]);
+
+  const fetchKeys = async () => {
+    try {
+      const response = await GetKeys.getKeys();
+      setData(response.data);
+    } catch (error) {
+      toast.error("Error fetching keys");
+    }
+  };
+
+  useEffect(() => {
+    fetchKeys();
+  }, []);
+
+  const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(event.target.value);
+  };
 
   const generateKeyBtn = async () => {
-    console.log(password);
-    await instance
-      .post("/key-pair/", {
-        password: password,
-      })
-      .then((res: any) => {
-        console.log(res);
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
+    try {
+      const newKey = await GenerateKey.generateKey(password);
+
+      setData((prevData: any) => [...prevData, newKey.data]);
+      toast.success("Key generated");
+    } catch (error) {
+      toast.error("Error generating key");
+    }
   };
+
   return (
     <div className="flex flex-col items-center gap-5">
       <Input
         value={password}
         label="Password"
         className="max-w-xs"
-        onChange={({ target }: any) => setPassword(target.value)}
+        onChange={handlePasswordChange}
       />
       <Button onClick={generateKeyBtn} color="primary">
         Generate Key
       </Button>
-      <TableKeys />
+      <TableKeys data={data} />
     </div>
   );
 };

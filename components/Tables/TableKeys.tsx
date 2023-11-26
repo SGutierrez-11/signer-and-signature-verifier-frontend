@@ -11,7 +11,11 @@ import axios from "axios";
 
 import { Button } from "@nextui-org/button";
 
-const TableKeys = () => {
+interface TableKeysProps {
+  data: any[];
+}
+
+const TableKeys = ({ data }: TableKeysProps) => {
   const [tableData, setTableData] = useState<string[]>([]);
 
   const instance = axios.create({
