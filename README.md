@@ -386,23 +386,6 @@ const VerifyFile = () => {
 
 export default VerifyFile;
 ```
-
-### Challenges and Solutions
-
-The development process faced several challenges, including:
-
-1. **Integration of Frontend and Backend:**
-   - Challenge: Ensuring seamless communication between the Next.js frontend and Django backend.
-   - Solution: Utilizing Axios for HTTP requests, maintaining consistency in data formats, and handling asynchronous operations.
-
-2. **File Handling and Encryption:**
-   - Challenge: Properly handling file inputs, managing file uploads, and ensuring secure encryption of private keys.
-   - Solution: Implementing file input handling with useRef, utilizing FormData for multipart/form-data requests, and leveraging cryptography libraries for secure RSA key generation and file signing.
-
-3. **User Experience and Error Handling:**
-   - Challenge: Providing a smooth user experience and implementing effective error handling.
-   - Solution: Utilizing React components to create an intuitive UI, incorporating toasts for user feedback, and implementing comprehensive error handling in the backend.
-
 ## Backend Implementation (Django)
 
 ### RSA Signature Operations
@@ -483,6 +466,22 @@ Gunicorn is also supported:
 ```bash
 gunicorn signer_and_signature_verifier_server.wsgi
 ```
+
+### Challenges and Solutions
+
+The development process faced several challenges, including:
+
+1. **Integration of Frontend and Backend:**
+   - Challenge: Ensuring seamless communication between the Next.js frontend and Django backend. In addition, we had difficulties with the cors policies implemented at the time of testing the frontend, so we had to make several changes to the backend and finally we managed to fix it.
+   - Solution: Utilizing Axios for HTTP requests, maintaining consistency in data formats, and handling asynchronous operations. Futhermore, the project added the cors policies in the back. 
+
+2. **File Handling and Encryption:**
+   - Challenge: Properly handling file inputs, managing file uploads, and ensuring secure encryption of private keys.
+   - Solution: Implementing file input handling with useRef, utilizing FormData for multipart/form-data requests, and leveraging cryptography libraries for secure RSA key generation and file signing.
+
+3. **User Experience and Error Handling:**
+   - Challenge: Providing a smooth user experience and implementing effective error handling.
+   - Solution: Utilizing React components to create an intuitive UI, incorporating toasts for user feedback, and implementing comprehensive error handling in the backend.
 
 ## Conclusion
 
