@@ -1,5 +1,6 @@
 "use client";
 
+import TableFiles from "@/components/Tables/TableFiles";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import axios from "axios";
@@ -20,10 +21,10 @@ export default function Home() {
       .post("/key-pair/1/", {
         password: password,
       })
-      .then((res) => {
+      .then((res: any) => {
         console.log(res);
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.log(error);
       });
   };
@@ -45,17 +46,15 @@ export default function Home() {
         <div className="w-full">
           <Button onClick={generateKeyBtn}>Generate Key</Button>
         </div>
-		<div>
-	
-		</div>
+        <div></div>
       </div>
       <div className="grid grid-cols-3 items-center">
         <div>
           <Button onClick={importFileBtn}>Import</Button>
         </div>
-        <div>
-        </div>
+        <div></div>
       </div>
+      <TableFiles />
     </section>
   );
 }
