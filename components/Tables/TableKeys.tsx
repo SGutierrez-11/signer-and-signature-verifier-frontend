@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Table,
   TableHeader,
-  TableBody,
   TableColumn,
+  TableBody,
   TableRow,
   TableCell,
-} from "@nextui-org/table";
+  Pagination,
+} from "@nextui-org/react";
+import { Tooltip } from "@nextui-org/react";
+
+import { DeleteDocumentIcon } from "./DeleteDocumentIcon";
+import { TagIcon } from "./TagIcon";
 
 import { Button } from "@nextui-org/button";
 
@@ -19,6 +24,18 @@ interface TableKeysProps {
 }
 
 const TableKeys = ({ data, onUpdateDeleteKey }: TableKeysProps) => {
+  const [page, setPage] = useState<number>(1);
+  const rowsPerPage = 4;
+
+  const pages = Math.ceil(data.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    return data.slice(start, end);
+  }, [page, data]);
+
   const downloadKey = (id: string, key: string, type: string) => {
     const blob = new Blob([key], {
       type: "application/octet-stream",
@@ -44,7 +61,25 @@ const TableKeys = ({ data, onUpdateDeleteKey }: TableKeysProps) => {
   };
 
   return (
-    <Table aria-label="Example static collection table">
+    <Table
+      aria-label="Example table with client side pagination"
+      bottomContent={
+        <div className="flex w-full justify-center">
+          <Pagination
+            isCompact
+            showControls
+            showShadow
+            color="secondary"
+            page={page}
+            total={pages}
+            onChange={(page) => setPage(page)}
+          />
+        </div>
+      }
+      classNames={{
+        wrapper: "min-h-[222px]",
+      }}
+    >
       <TableHeader>
         <TableColumn>KEY ID</TableColumn>
         <TableColumn>TIMESTAMP</TableColumn>
@@ -52,46 +87,55 @@ const TableKeys = ({ data, onUpdateDeleteKey }: TableKeysProps) => {
         <TableColumn>PUBLIC KEY</TableColumn>
         <TableColumn>ACTIONS</TableColumn>
       </TableHeader>
-      <TableBody>
-        {data.map((key) => (
-          <TableRow key={(key as any).id}>
-            <TableCell>{(key as any).id}</TableCell>
-            <TableCell>{(key as any).timestamp}</TableCell>
+      <TableBody items={items}>
+        {(item) => (
+          <TableRow key={item.id}>
+            <TableCell>{item.id}</TableCell>
+            <TableCell>{(item as any).timestamp}</TableCell>
             <TableCell>
-              <Button
-                color="primary"
-                onClick={() =>
-                  downloadKey(
-                    (key as any).id,
-                    (key as any).private_key,
-                    "private"
-                  )
-                }
-              >
-                Download
-              </Button>
+              <Tooltip content="Download">
+                <Button
+                  className="bg-transparent"
+                  onClick={() =>
+                    downloadKey(
+                      (item as any).id,
+                      (item as any).private_key,
+                      "private"
+                    )
+                  }
+                >
+                  <TagIcon className="text-3xl text-primary" />
+                </Button>
+              </Tooltip>
             </TableCell>
             <TableCell>
-              <Button
-                color="primary"
-                onClick={() =>
-                  downloadKey(
-                    (key as any).id,
-                    (key as any).public_key,
-                    "public"
-                  )
-                }
-              >
-                Download
-              </Button>
+              <Tooltip content="Download">
+                <Button
+                  className="bg-transparent"
+                  onClick={() =>
+                    downloadKey(
+                      (item as any).id,
+                      (item as any).public_key,
+                      "public"
+                    )
+                  }
+                >
+                  <TagIcon className="text-3xl text-secondary" />
+                </Button>
+              </Tooltip>
             </TableCell>
             <TableCell>
-              <Button color="danger" onClick={() => deleteKey((key as any).id)}>
-                Delete
-              </Button>
+              <Tooltip content="Delete">
+                <Button
+                  onClick={() => deleteKey((item as any).id)}
+                  className="bg-transparent"
+                >
+                  <DeleteDocumentIcon className="text-3xl text-red-500" />
+                </Button>
+              </Tooltip>
             </TableCell>
           </TableRow>
-        ))}
+        )}
       </TableBody>
     </Table>
   );
