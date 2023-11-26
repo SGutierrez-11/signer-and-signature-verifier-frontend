@@ -5,9 +5,12 @@ import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import axios from "axios";
 import React from "react";
+import { title, subtitle } from '@/components/primitives'
+import TableKeys from "@/components/Tables/TableKeys";
 
 export default function Home() {
   const [password, setPassword] = React.useState("");
+  const [data, setData] = React.useState([]);
 
   const instance = axios.create({
     baseURL: "https://signer-verifier-server.onrender.com/api",
@@ -18,7 +21,7 @@ export default function Home() {
   const generateKeyBtn = async () => {
     console.log(password);
     await instance
-      .post("/key-pair/1/", {
+      .post("/key-pair/", {
         password: password,
       })
       .then((res: any) => {
@@ -33,20 +36,19 @@ export default function Home() {
 
   return (
     <section className="grid gap-4 grid-rows-2">
-		<h1 className=""></h1>
-      <div className="grid grid-cols-3 items-center">
-        <div className="w-full justify-c">
+		<h1 className={title()}>Signer and Signature</h1>
+      <div className="grid grid-cols-2 gap-8 items-center justify-content">
+        <div className="w-full grid-rows-2">
           <Input
             value={password}
             label="Password"
             className="max-w-xs"
             onChange={({ target }) => setPassword(target.value)}
           />
+		  <Button onClick={generateKeyBtn}>Generate Key</Button>
         </div>
-        <div className="w-full">
-          <Button onClick={generateKeyBtn}>Generate Key</Button>
-        </div>
-        <div></div>
+               
+        <TableKeys data={ data }/>
       </div>
       <div className="grid grid-cols-3 items-center">
         <div>
