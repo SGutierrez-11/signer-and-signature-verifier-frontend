@@ -166,3 +166,348 @@ npm run dev
 ## License
 
 Licensed under the [MIT license](https://github.com/nextui-org/next-app-template/blob/main/LICENSE).
+
+# Project Report
+
+## Project Overview
+
+### Signer and Signature Verifier System
+
+The Signer and Signature Verifier System is a project that provides a complete solution for generating RSA key pairs, signing files, and verifying digital signatures. The system is implemented using a frontend built with Next.js, and a backend developed using Django. The communication between the frontend and backend is facilitated through Axios, enabling seamless integration and data exchange.
+
+## Frontend Implementation
+
+The frontend is developed using Next.js, a React framework that allows for efficient component-based UI development. Axios is utilized for making HTTP requests to the Django backend, enabling the frontend to interact with the server seamlessly.
+
+### Key Components
+
+#### 1. Home Page (`/app/page.tsx`)
+
+The home page serves as the main entry point for the application, displaying components for key generation, file signing, and verification.
+
+```jsx
+"use client";
+
+import React from "react";
+import MainFiles from "@/components/Files/MainFiles";
+import KeyGenerate from "@/components/KeyGenerate/KeyGenerate";
+
+export default function Home() {
+  return (
+    <section>
+      <h1 className="text-4xl font-bold flex justify-center mb-10">
+        Signer and Signature
+      </h1>
+      <KeyGenerate />
+      <MainFiles />
+    </section>
+  );
+}
+```
+
+#### 2. Key Generation Component (`KeyGenerate.tsx`)
+
+This component allows users to generate RSA key pairs by providing a password.
+
+```jsx
+import React, { useState, useEffect } from "react";
+import { Input } from "@nextui-org/input";
+import { Button } from "@nextui-org/button";
+import GenerateKey from "@/services/GenerateKey";
+import GetKeys from "@/services/GetKeys";
+import TableKeys from "@/components/Tables/TableKeys";
+import { toast } from "react-hot-toast";
+
+const KeyGenerate = () => {
+  // ... (state and useEffect for fetching keys)
+
+  const generateKeyBtn = async () => {
+    try {
+      const newKey = await GenerateKey.generateKey(password);
+
+      setData((prevData: any) => [...prevData, newKey.data]);
+      toast.success("Key generated");
+    } catch (error) {
+      toast.error("Error generating key");
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-5">
+      <Input
+        value={password}
+        label="Password"
+        className="max-w-xs"
+        onChange={handlePasswordChange}
+      />
+      <Button onClick={generateKeyBtn} color="primary">
+        Generate Key
+      </Button>
+      <TableKeys data={data} />
+    </div>
+  );
+};
+
+export default KeyGenerate;
+```
+
+#### 3. File Signing and Verification Component (`MainFiles.tsx`)
+
+This component serves as the container for the file signing and verification components.
+
+```jsx
+import React from "react";
+import SingFile from "./SingFile";
+import VerifyFile from "./VerifyFile";
+
+const MainFiles = () => {
+  return (
+    <div>
+      <div className="flex flex-row justify-center text-center mt-8 font-bold text-3xl">
+        Signer Verify Files
+      </div>
+      <div className="flex flex-row justify-center gap-5 mt-10 mb-10">
+        <SingFile />
+        <VerifyFile />
+      </div>
+    </div>
+  );
+};
+
+export default MainFiles;
+```
+
+#### 4. File Signing Component (`SingFile.tsx`)
+
+This component allows users to sign a file by providing the file to sign, the private key, and a password.
+
+```jsx
+import React, { useRef, useState } from "react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@nextui-org/react";
+import { Input } from "@nextui-org/react";
+import { toast } from "react-hot-toast";
+import SignFile from "@/services/SignFile";
+
+const SingFile = () => {
+  // ... (state and useRef for handling file inputs)
+
+  const sendFiles = async () => {
+    try {
+      const signFile = await SignFile.signFile(
+        selectedSignFile!,
+        selectedPrivateFile!,
+        password
+      );
+      toast.success("File signed successfully");
+
+      if (signFile.signature) {
+        // ... (code to download the signed file)
+      }
+    } catch (error) {
+      toast.error("Error signing file");
+    }
+  };
+
+  return (
+    <>
+      <Button onPress={onOpen} color="primary">
+        Sign File
+      </Button>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size={"2xl"}>
+        <ModalContent>
+          {/* ... (modal content) */}
+        </ModalContent>
+      </Modal>
+    </>
+  );
+};
+
+export default SingFile;
+```
+
+#### 5. File Verification Component (`VerifyFile.tsx`)
+
+This component allows users to verify the signature of a file by providing the original file, the signature file, and the public key.
+
+```jsx
+import React, { useRef, useState } from "react";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+} from "@nextui-org/react";
+import { toast } from "react-hot-toast";
+import VerifyFiles from "@/services/VerifyFiles";
+
+const VerifyFile = () => {
+  // ... (state and useRef for handling file inputs)
+
+  const sendFiles = async () => {
+    try {
+      const verifyFile = await VerifyFiles.verifyFiles(
+        selectedOriginalFile!,
+        selectedSignFile!,
+        selectedPublicKey!
+      );
+      toast.success(verifyFile?.message);
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error?.response.data.error);
+    }
+  };
+
+  return (
+    <>
+      <Button onPress={onOpen} color="primary">
+        Verify File
+
+
+      </Button>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size={"2xl"}>
+        <ModalContent>
+          {/* ... (modal content) */}
+        </ModalContent>
+      </Modal>
+    </>
+  );
+};
+
+export default VerifyFile;
+```
+## Backend Implementation (Django)
+
+### RSA Signature Operations
+
+1. **generate_rsa_key_pair**
+   - Generates an RSA key pair with a specified key size, encrypting the private key with a provided password.
+
+2. **sign_file**
+   - Signs the content of a file using an RSA private key encrypted with a password.
+
+3. **verify_signature**
+   - Verifies if a digital signature corresponds to the original content of a file using an RSA public key.
+
+### Endpoints
+
+#### 1. Generate RSA Key Pair
+
+- Endpoint: `/key-pair/`
+- Method: POST
+- Generates an RSA key pair and stores the private key protected with a password in the database.
+
+#### 2. Sign File
+
+- Endpoint: `/sign-file/`
+- Method: POST
+- Signs a file with the private key stored in the database.
+
+#### 3. Verify Signature
+
+- Endpoint: `/verify-signature/`
+- Method: POST
+- Verifies if the digital signature corresponds to the original file and the provided public key.
+
+#### 4. Delete RSA Key Pair (Optional)
+
+- Endpoint: `/key-pair/{id}/`
+- Method: DELETE
+- Deletes an RSA key pair from the database by its ID.
+
+### Usage Examples
+
+#### Generate RSA Key Pairs
+
+```bash
+curl -X POST -H "Content-Type: application/json" -d '{"password": "your_password"}' http://domain.com/key-pair/
+```
+
+#### Sign File
+
+```bash
+curl -X POST -H "Content-Type: multipart/form-data" -F "password=your_password" -F "file_to_sign=@/path/to/your/file.txt" -F "private_key_file=@/path/to/your/private_key.pem" http://domain.com/sign-file/
+```
+
+#### Verify Signature
+
+```bash
+curl -X POST -H "Content-Type: multipart/form-data" -F "original_file=@/path/to/your/original_file.txt" -F "signature_file=@/path/to/your/signature.txt" -F "public_key_file=@/path/to/your/public_key.pem" http://domain.com/verify-signature/
+```
+
+#### Delete RSA Key Pair (Optional)
+
+```bash
+curl -X DELETE http://domain.com/key-pair/1/
+```
+
+Ensure to replace `your-domain.com` with your server's URL.
+
+### Server Setup
+
+To start the server, run the following command:
+
+```bash
+python manage.py runserver
+```
+
+Gunicorn is also supported:
+
+```bash
+gunicorn signer_and_signature_verifier_server.wsgi
+```
+
+### Challenges and Solutions
+
+The development process faced several challenges, including:
+
+1. **Integration of Frontend and Backend:**
+   - Challenge: Ensuring seamless communication between the Next.js frontend and Django backend. In addition, we had difficulties with the cors policies implemented at the time of testing the frontend, so we had to make several changes to the backend and finally we managed to fix it.
+   - Solution: Utilizing Axios for HTTP requests, maintaining consistency in data formats, and handling asynchronous operations. Futhermore, the project added the cors policies in the back. 
+
+2. **File Handling and Encryption:**
+   - Challenge: Properly handling file inputs, managing file uploads, and ensuring secure encryption of private keys.
+   - Solution: Implementing file input handling with useRef, utilizing FormData for multipart/form-data requests, and leveraging cryptography libraries for secure RSA key generation and file signing.
+
+3. **User Experience and Error Handling:**
+   - Challenge: Providing a smooth user experience and implementing effective error handling.
+   - Solution: Utilizing React components to create an intuitive UI, incorporating toasts for user feedback, and implementing comprehensive error handling in the backend.
+
+# Conclusion
+
+The **Signer and Signature Verifier System** offers a robust solution for secure file signing and verification through RSA key pairs. Prioritizing a balance between security, usability, and practical applications, the project ensures a comprehensive approach to digital signatures.
+
+## Security Considerations
+
+The project's core lies in the secure implementation of RSA key pair processes, emphasizing secure private key operations and password protection. Utilizing cryptography libraries and robust file handling techniques, the system ensures the integrity and confidentiality of digital signatures, fortifying it against tampering and unauthorized access.
+
+## Usability and User Experience
+
+Designed for user-friendly interactions, the system's frontend, developed with Next.js, provides a seamless experience for generating key pairs, signing files, and verifying signatures. Features like toasts for feedback and a well-organized UI enhance overall usability, making it accessible even for users with limited technical expertise.
+
+## Learning Outcomes
+
+The project served as a valuable learning opportunity, covering various aspects of frontend-backend integration, secure coding practices, and cryptographic operations. Insights into Next.js and Django integration, file handling, encryption, and secure coding practices were key takeaways for the development team.
+
+## Use Cases and Practical Applications
+
+The **Signer and Signature Verifier System** finds application in document authentication, ensuring data integrity in communication, identity verification, and open-source software distribution. Its versatility caters to scenarios where secure file signing and verification are essential.
+
+## Future Enhancements
+
+There is room for growth with enhanced key management, extended algorithm support, user access controls, and user-friendly key recovery. These improvements aim to further enhance security, expand functionality, and provide a more user-centric experience.
+
+## Final Thoughts
+
+The project successfully delivers a secure and user-friendly solution for digital signature operations. Driven by a commitment to security best practices, usability, and continuous learning, it stands as a testament to the team's dedication. As technology evolves, the system serves as a foundation for innovations in secure data transmission and authentication.
+
