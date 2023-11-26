@@ -1,51 +1,60 @@
-import { Link } from "@nextui-org/link";
-import { Snippet } from "@nextui-org/snippet";
-import { Code } from "@nextui-org/code"
-import { button as buttonStyles } from "@nextui-org/theme";
-import { siteConfig } from "@/config/site";
-import { title, subtitle } from "@/components/primitives";
-import { GithubIcon } from "@/components/icons";
+"use client";
+
+import { Button } from "@nextui-org/button";
+import { Input } from "@nextui-org/input";
+import axios from "axios";
+import React from "react";
 
 export default function Home() {
-	return (
-		<section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-			<div className="inline-block max-w-lg text-center justify-center">
-				<h1 className={title()}>Make&nbsp;</h1>
-				<h1 className={title({ color: "violet" })}>beautiful&nbsp;</h1>
-				<br />
-				<h1 className={title()}>
-					websites regardless of your design experience.
-				</h1>
-				<h2 className={subtitle({ class: "mt-4" })}>
-					Beautiful, fast and modern React UI library.
-				</h2>
-			</div>
+  const [password, setPassword] = React.useState("");
 
-			<div className="flex gap-3">
-				<Link
-					isExternal
-					href={siteConfig.links.docs}
-					className={buttonStyles({ color: "primary", radius: "full", variant: "shadow" })}
-				>
-					Documentation
-				</Link>
-				<Link
-					isExternal
-					className={buttonStyles({ variant: "bordered", radius: "full" })}
-					href={siteConfig.links.github}
-				>
-					<GithubIcon size={20} />
-					GitHub
-				</Link>
-			</div>
+  const instance = axios.create({
+    baseURL: "https://signer-verifier-server.onrender.com/api",
+    timeout: 10000,
+    headers: { "Content-Type": "application/json" },
+  });
 
-			<div className="mt-8">
-				<Snippet hideSymbol hideCopyButton variant="flat">
-					<span>
-						Get started by editing <Code color="primary">app/page.tsx</Code>
-					</span>
-				</Snippet>
-			</div>
-		</section>
-	);
+  const generateKeyBtn = async () => {
+    console.log(password);
+    await instance
+      .post("/key-pair/1/", {
+        password: password,
+      })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const importFileBtn = async () => {};
+
+  return (
+    <section className="grid gap-4 grid-rows-2">
+      <div className="grid grid-cols-3 items-center">
+        <div className="w-full justify-c">
+          <Input
+            value={password}
+            label="Password"
+            className="max-w-xs"
+            onChange={({ target }) => setPassword(target.value)}
+          />
+        </div>
+        <div className="w-full">
+          <Button onClick={generateKeyBtn}>Generate Key</Button>
+        </div>
+		<div>
+	
+		</div>
+      </div>
+      <div className="grid grid-cols-3 items-center">
+        <div>
+          <Button onClick={importFileBtn}>Import</Button>
+        </div>
+        <div>
+        </div>
+      </div>
+    </section>
+  );
 }
