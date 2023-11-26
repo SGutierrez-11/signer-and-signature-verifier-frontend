@@ -7,35 +7,18 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/table";
-import axios from "axios";
 
 import { Button } from "@nextui-org/button";
 
+import DeleteKey from "@/services/DeleteKey";
+import { toast } from "react-hot-toast";
+
 interface TableKeysProps {
   data: any[];
+  onUpdateDeleteKey: (id: string) => void;
 }
 
-const TableKeys = ({ data }: TableKeysProps) => {
-  const [tableData, setTableData] = useState<string[]>([]);
-
-  const instance = axios.create({
-    baseURL: "https://signer-verifier-server.onrender.com/api",
-    timeout: 10000,
-    headers: { "Content-Type": "application/json" },
-  });
-
-  React.useEffect(() => {
-    instance
-      .get("/key-pair/", {})
-      .then((res) => {
-        console.log(res);
-        setTableData(res.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
+const TableKeys = ({ data, onUpdateDeleteKey }: TableKeysProps) => {
   const downloadKey = (id: string, key: string, type: string) => {
     const blob = new Blob([key], {
       type: "application/octet-stream",
@@ -50,17 +33,15 @@ const TableKeys = ({ data }: TableKeysProps) => {
     URL.revokeObjectURL(url);
   };
 
-  const deleteKey = (id: string) => {
-    instance.delete(`/key-pair/${id}`).then((res) => {
-      console.log(res);
-
-      setTableData((prevData) =>
-        prevData.filter((key) => (key as any).id !== id)
-      );
-    });
+  const deleteKey = async (id: string) => {
+    try {
+      await DeleteKey.deleteKey(id);
+      toast.success("Key deleted");
+      onUpdateDeleteKey(id);
+    } catch (error) {
+      toast.error("Error deleting key");
+    }
   };
-
-  useEffect(() => {}, [tableData]);
 
   return (
     <Table aria-label="Example static collection table">
@@ -72,13 +53,13 @@ const TableKeys = ({ data }: TableKeysProps) => {
         <TableColumn>ACTIONS</TableColumn>
       </TableHeader>
       <TableBody>
-        {tableData.map((key) => (
+        {data.map((key) => (
           <TableRow key={(key as any).id}>
             <TableCell>{(key as any).id}</TableCell>
             <TableCell>{(key as any).timestamp}</TableCell>
             <TableCell>
               <Button
-                className=""
+                color="primary"
                 onClick={() =>
                   downloadKey(
                     (key as any).id,
@@ -92,7 +73,7 @@ const TableKeys = ({ data }: TableKeysProps) => {
             </TableCell>
             <TableCell>
               <Button
-                className=""
+                color="primary"
                 onClick={() =>
                   downloadKey(
                     (key as any).id,
@@ -105,7 +86,7 @@ const TableKeys = ({ data }: TableKeysProps) => {
               </Button>
             </TableCell>
             <TableCell>
-              <Button className="" onClick={() => deleteKey((key as any).id)}>
+              <Button color="danger" onClick={() => deleteKey((key as any).id)}>
                 Delete
               </Button>
             </TableCell>

@@ -34,12 +34,15 @@ const KeyGenerate = () => {
   const generateKeyBtn = async () => {
     try {
       const newKey = await GenerateKey.generateKey(password);
-
       setData((prevData: any) => [...prevData, newKey.data]);
       toast.success("Key generated");
     } catch (error) {
       toast.error("Error generating key");
     }
+  };
+
+  const onUpdateDeleteKey = (id: string) => {
+    setData((prevData: any) => prevData.filter((key: any) => key.id !== id));
   };
 
   return (
@@ -53,7 +56,7 @@ const KeyGenerate = () => {
       <Button onClick={generateKeyBtn} color="primary">
         Generate Key
       </Button>
-      <TableKeys data={data} />
+      <TableKeys data={data} onUpdateDeleteKey={onUpdateDeleteKey} />
     </div>
   );
 };
