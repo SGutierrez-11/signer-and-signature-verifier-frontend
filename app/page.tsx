@@ -1,5 +1,6 @@
 "use client";
 
+import MainFiles from "@/components/Files/MainFiles";
 import TableFiles from "@/components/Tables/TableFiles";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
@@ -54,6 +55,7 @@ export default function Home() {
         <div></div>
       </div>
       <TableFiles />
+      <MainFiles />
     </section>
   );
 }
