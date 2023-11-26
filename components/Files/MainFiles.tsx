@@ -8,7 +8,7 @@ const MainFiles = () => {
       <div className="flex flex-row justify-center text-center mt-8 font-bold text-3xl">
         Signer Verify Files
       </div>
-      <div className="flex flex-row justify-center gap-5 mt-10">
+      <div className="flex flex-row justify-center gap-5 mt-10 mb-10">
         <SingFile />
         <VerifyFile />
       </div>
