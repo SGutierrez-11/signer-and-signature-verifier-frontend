@@ -1,5 +1,6 @@
 "use client";
 
+import TableFiles from "@/components/Tables/TableFiles";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import axios from "axios";
@@ -52,6 +53,7 @@ export default function Home() {
         </div>
         <div></div>
       </div>
+      <TableFiles />
     </section>
   );
 }
