@@ -32,6 +32,7 @@ export default function Home() {
 
   return (
     <section className="grid gap-4 grid-rows-2">
+		<h1 className=""></h1>
       <div className="grid grid-cols-3 items-center">
         <div className="w-full justify-c">
           <Input
