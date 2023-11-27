@@ -83,6 +83,7 @@ const TableKeys = ({ data, onUpdateDeleteKey }: TableKeysProps) => {
       <TableHeader>
         <TableColumn>KEY ID</TableColumn>
         <TableColumn>TIMESTAMP</TableColumn>
+        <TableColumn>PASSWORD</TableColumn>
         <TableColumn>PRIVATE KEY</TableColumn>
         <TableColumn>PUBLIC KEY</TableColumn>
         <TableColumn>ACTIONS</TableColumn>
@@ -92,6 +93,7 @@ const TableKeys = ({ data, onUpdateDeleteKey }: TableKeysProps) => {
           <TableRow key={item.id}>
             <TableCell>{item.id}</TableCell>
             <TableCell>{(item as any).timestamp}</TableCell>
+            <TableCell>{(item as any).password}</TableCell>
             <TableCell>
               <Tooltip content="Download">
                 <Button
